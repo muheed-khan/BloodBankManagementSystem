@@ -1,0 +1,384 @@
+create database blood;
+
+CREATE TABLE tbladmin (
+  ID int NOT NULL IDENTITY(1,1),
+  AdminName varchar(120) DEFAULT NULL,
+  UserName varchar(120) DEFAULT NULL,
+  MobileNumber bigint DEFAULT NULL,
+  Email varchar(200) DEFAULT NULL,
+  Password varchar(200) DEFAULT NULL,
+  AdminRegdate datetime default CURRENT_TIMESTAMP
+) ;
+
+CREATE TABLE tblblooddonars (
+  ID int NOT NULL IDENTITY(1,1),
+  FullName varchar(100) DEFAULT NULL,
+  MobileNumber char(11) DEFAULT NULL,
+  EmailId varchar(100) DEFAULT NULL,
+  Gender varchar(20) DEFAULT NULL,
+  Age int DEFAULT NULL,
+  BloodGroup varchar(20) DEFAULT NULL,
+  Address varchar(255) DEFAULT NULL,
+  Message text DEFAULT NULL,
+  PostingDate datetime default CURRENT_TIMESTAMP,
+  status int DEFAULT NULL,
+  Password varchar(250) DEFAULT NULL
+);
+
+CREATE TABLE tblbloodgroup (
+ id int NOT NULL IDENTITY(1,1),
+  BloodGroup varchar(20) DEFAULT NULL,
+  PostingDate datetime default CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tblbloodrequirer (
+ id int NOT NULL IDENTITY(1,1),
+  BloodDonarID int DEFAULT NULL,
+  name varchar(250) DEFAULT NULL,
+  EmailId varchar(250) DEFAULT NULL,
+  ContactNumber bigint DEFAULT NULL,
+  BloodRequirefor varchar(250) DEFAULT NULL,
+  Message text DEFAULT NULL,
+  ApplyDate datetime default CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tblcontactusinfo (
+  id int NOT NULL IDENTITY(1,1),
+  Address text DEFAULT NULL,
+  EmailId varchar(255) DEFAULT NULL,
+  ContactNo char(11) DEFAULT NULL
+) ;
+
+CREATE TABLE tblcontactusquery (
+  id int DEFAULT NULL IDENTITY(1,1),
+  name varchar(100) DEFAULT NULL,
+  EmailId varchar(120) DEFAULT NULL,
+  ContactNumber char(11) DEFAULT NULL,
+  Message text DEFAULT NULL,
+  PostingDate datetime default CURRENT_TIMESTAMP,
+  status int DEFAULT NULL
+) ;
+
+
+CREATE TABLE tblpages (
+  id int NOT NULL,
+  PageName varchar(255) DEFAULT NULL,
+  type varchar(255) NOT NULL DEFAULT '',
+  detail text NOT NULL
+) ;
+
+
+
+create table tbldonarinfo (
+FullName varchar(100),
+MobileNumber char(11),
+Addresss varchar (155),
+Message text,
+constraint Foreign_key_blood_info Foreign key (fullName,mobileNumber) REFERENCES tblblooddonars(fullName,mobileNumber)
+);
+
+
+
+
+
+
+select name,ContactNumber,EmailId,BloodRequirefor
+into requirer_info
+from tblbloodrequirer;
+
+
+
+
+ALTER TABLE tbladmin
+  ADD PRIMARY KEY (ID);
+
+--
+-- Indexes for table tblblooddonars
+--
+
+
+alter table tblblooddonars
+add constraint candidate_key_donor unique (fullName,mobileNumber);
+
+
+
+alter table tblbloodrequirer
+add constraint candidate_key_requirer unique (name,contactNumber);
+
+
+ALTER TABLE tblblooddonars
+  ADD PRIMARY KEY (id);
+
+--
+-- Indexes for table tblbloodgroup
+--
+ALTER TABLE tblbloodgroup
+  ADD PRIMARY KEY (id);
+
+--
+-- Indexes for table tblbloodrequirer
+--
+ALTER TABLE tblbloodrequirer
+  ADD PRIMARY KEY (ID);
+
+--
+-- Indexes for table tblcontactusinfo
+--
+ALTER TABLE tblcontactusinfo
+  ADD PRIMARY KEY (id);
+
+--
+-- Indexes for table tblcontactusquery
+--
+ALTER TABLE tblcontactusquery
+  ADD PRIMARY KEY (id);
+
+--
+-- Indexes for table tblpages
+--
+ALTER TABLE tblpages
+  ADD PRIMARY KEY (id);
+
+----
+---Procedures
+----
+
+create procedure InsertDonnarData
+@FullName varchar(100),
+@MobileNumber char(11),
+@EmailId varchar(100),
+@Gender varchar(20),
+@Age int,
+@BloodGroup varchar(20),
+@Address varchar(255),
+@Message text
+as
+begin
+
+insert into tblblooddonars(FullName,MobileNumber,EmailId,Gender,Age, BloodGroup, Address,Message )
+values (@FullName,@MobileNumber,@EmailId,@Gender,@Age, @BloodGroup, @Address,@Message)
+end
+
+
+create procedure Update_Donar_Name
+@FullName varchar(100),
+@MobileNumber char(11)
+as
+begin
+
+UPDATE tblblooddonars set FullName = @FullName  where MobileNumber=@MobileNumber
+
+end
+
+
+create procedure Update_Donar_Mobile
+@MobileNumberOld char(11),
+@MobileNumberNew char(11)
+as
+begin
+
+UPDATE tblblooddonars set MobileNumber = @MobileNumberNew  where MobileNumber=@MobileNumberOld
+
+end
+
+
+
+create procedure Update_Donar_Email
+@EmailId varchar(100),
+@MobileNumber char(11)
+as
+begin
+UPDATE tblblooddonars set EmailId = @EmailId where MobileNumber=@MobileNumber
+end
+
+create procedure Update_Donar_Gender
+@Gender varchar(20),
+@MobileNumber char(11)
+as
+begin
+UPDATE tblblooddonars set Gender = @Gender where MobileNumber=@MobileNumber
+end
+
+
+
+create procedure Update_Donar_Age
+@Age int,
+@MobileNumber char(11)
+as
+begin
+UPDATE tblblooddonars set Age = @Age where MobileNumber=@MobileNumber
+end
+
+
+create procedure Update_Donar_Blood_Group
+@BloodGroup varchar(20),
+@MobileNumber char(11)
+as
+begin
+UPDATE tblblooddonars set BloodGroup = @BloodGroup where MobileNumber=@MobileNumber
+end
+
+
+
+create procedure Delete_Donar
+@MobileNumber char(11)
+as
+begin
+
+DELETE FROM tblblooddonars where MobileNumber =@MobileNumber
+
+end
+
+----Requirer Table------
+
+create procedure InsertRequirerData
+@BloodDonorID int,
+@Name varchar(250),
+@MobileNumber bigint,
+@EmailId varchar(100),
+@Message text,
+@BloodRequireFor varchar(250)
+as
+begin
+
+insert into tblbloodrequirer(BloodDonarID,name,ContactNumber,EmailId,BloodRequirefor,Message )
+values (@BloodDonorID,@name,@MobileNumber,@EmailId,@BloodRequirefor,@Message)
+end
+
+
+create procedure Update_Requirer_Name
+@name varchar(250),
+@MobileNumber bigint
+as
+begin
+
+UPDATE update_requirer_vw set name = @name  where contactNumber=@MobileNumber
+
+end
+
+
+
+
+
+---------------VIEWS-----------
+
+create view update_requirer_vw
+as
+select * from tblbloodrequirer
+
+
+
+create view Admin_vw
+as
+select * from tbladmin
+
+
+create view donor_vw
+as
+select * from tblblooddonars
+
+
+create view blood_vw
+as
+select * from tblbloodgroup
+
+create view contact_us_vw
+as
+select * from tblcontactusinfo
+
+
+create view contact_us_query_vw
+as
+select * from tblcontactusquery
+
+create view pages_vw
+as
+select * from tblpages
+
+
+create view blood_info_vw 
+as
+select * from blood_info
+
+
+
+create view donor_vw
+as
+select * from tblblooddonars
+
+
+-----functions-----
+
+
+
+
+create function fn_contact_us()
+returns table
+as
+return (Select * from contact_us_vw );
+
+
+
+
+create function fn_donor_info()
+returns table
+as
+return (Select * from donor_vw );
+
+
+
+
+------triggers-----
+
+
+
+
+
+create trigger tr_insert_donor
+on tblblooddonars
+for insert
+as
+begin
+declare @f_name varchar(100)
+declare @b_phonenumber char(11)
+declare @b_address varchar(255)
+--declare @b_message text
+select @f_name = fullName from inserted
+select @b_phonenumber = MobileNumber from inserted
+select @b_address = Address from inserted
+
+--select @b_message = Message from inserted
+
+--,@b_message
+--,Message
+
+insert into tbltblbloodinfo(FullName,MobileNumber,Address)
+values (@f_name,@b_phonenumber,@b_address)
+end;
+
+
+
+
+
+create trigger tr_insert_requirer
+on tblbloodrequirer
+for insert
+as
+begin
+declare @r_name varchar(100)
+declare @r_phonenumber char(11)
+declare @r_emailid varchar(250)
+declare @r_bloodrequirefor varchar(250)
+select @r_name = name from inserted
+select @r_phonenumber = contactNumber from inserted
+select @r_emailid = EmailId from inserted
+select @r_bloodrequirefor = BloodRequirefor from inserted
+
+--,@b_message
+--,Message
+
+insert into requirer_info(name,ContactNumber,Emailid,bloodRequirefor)
+values (@r_name,@r_phonenumber,@r_emailid,@r_bloodrequirefor)
+end;
+
+ 
